@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { 
   LayoutDashboard, 
@@ -12,8 +14,8 @@ import {
   Video as VideoIcon
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { TabType } from '../types';
-import { cn } from '../lib/utils';
+import { TabType } from '@/types';
+import { cn } from '@/lib/utils';
 
 interface SidebarProps {
   activeTab: TabType;

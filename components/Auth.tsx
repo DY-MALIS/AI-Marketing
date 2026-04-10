@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -12,7 +14,8 @@ import {
   EyeOff,
   Plus
 } from 'lucide-react';
-import { cn } from '../lib/utils';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 interface AuthProps {
   onLogin: () => void;
@@ -105,8 +108,18 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         </div>
 
         <p className="text-center text-slate-400 text-[10px] mt-10 leading-relaxed font-medium uppercase tracking-widest">
-          By continuing, you agree to Marketing Engine's <br />
-          <span className="text-brand-600 font-bold cursor-pointer">Terms of Service</span> and <span className="text-brand-600 font-bold cursor-pointer">Privacy Policy</span>.
+          By continuing, you agree to Marketing Engine&apos;s <br />
+          <Link 
+            href="/terms-of-service"
+            className="text-brand-600 font-bold cursor-pointer hover:text-brand-800 transition-colors underline decoration-brand-200"
+          >
+            Terms of Service
+          </Link> and <Link 
+            href="/privacy-policy"
+            className="text-brand-600 font-bold cursor-pointer hover:text-brand-800 transition-colors underline decoration-brand-200"
+          >
+            Privacy Policy
+          </Link>.
         </p>
       </motion.div>
     </div>

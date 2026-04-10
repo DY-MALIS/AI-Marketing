@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { 
   Eye, 
@@ -29,8 +31,8 @@ import {
   Bar,
   Cell
 } from 'recharts';
-import { cn } from '../lib/utils';
-import { tiktokService, TikTokUser, TikTokAnalyticsData } from '../services/tiktokService';
+import { cn } from '@/lib/utils';
+import { tiktokService, TikTokUser, TikTokAnalyticsData } from '@/services/tiktokService';
 
 const tiktokData = {
   overview: [

@@ -1,15 +1,17 @@
+'use client';
+
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import Sidebar from './components/Sidebar';
-import Copywriter from './components/Copywriter';
-import PosterGen from './components/PosterGen';
-import VideoVoice from './components/VideoVoice';
-import Planner from './components/Planner';
-import TikTokAnalytics from './components/TikTokAnalytics';
-import Auth from './components/Auth';
-import { TabType } from './types';
+import Sidebar from '@/components/Sidebar';
+import Copywriter from '@/components/Copywriter';
+import PosterGen from '@/components/PosterGen';
+import VideoVoice from '@/components/VideoVoice';
+import Planner from '@/components/Planner';
+import TikTokAnalytics from '@/components/TikTokAnalytics';
+import Auth from '@/components/Auth';
+import { TabType } from '@/types';
 
-export default function App() {
+export default function HomePage() {
   const [activeTab, setActiveTab] = useState<TabType>('copywriter');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 

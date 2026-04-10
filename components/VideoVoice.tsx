@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { 
   Sparkles, 
@@ -12,7 +14,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { GoogleGenAI, Modality } from "@google/genai";
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 type ToolType = 'video' | 'voice';

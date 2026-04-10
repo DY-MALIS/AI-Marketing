@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { 
   Sparkles, 
@@ -9,7 +11,7 @@ import {
   Copy
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 type ToolType = 'poster' | 'visual';

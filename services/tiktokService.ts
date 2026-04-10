@@ -29,9 +29,9 @@ export interface TikTokAnalyticsData {
 }
 
 class TikTokService {
-  private clientId = import.meta.env.VITE_TIKTOK_CLIENT_ID;
-  private clientSecret = import.meta.env.VITE_TIKTOK_CLIENT_SECRET;
-  private redirectUri = `${window.location.origin}/tiktok-callback`;
+  private clientId = typeof window !== 'undefined' ? (process.env.NEXT_PUBLIC_TIKTOK_CLIENT_ID || '') : '';
+  private clientSecret = typeof window !== 'undefined' ? (process.env.NEXT_PUBLIC_TIKTOK_CLIENT_SECRET || '') : '';
+  private redirectUri = typeof window !== 'undefined' ? `${window.location.origin}/tiktok-callback` : '';
 
   async login() {
     const scope = 'user.info.basic,video.list,video.stats';

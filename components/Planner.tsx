@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { 
   ChevronLeft, 
@@ -18,7 +20,7 @@ import {
   BrainCircuit
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO } from 'date-fns';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI, Type } from "@google/genai";
 
