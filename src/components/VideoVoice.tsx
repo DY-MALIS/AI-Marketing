@@ -162,14 +162,14 @@ const VideoVoice: React.FC = () => {
     if (activeTool === 'video' && generatedVideo) {
       const link = document.createElement('a');
       link.href = generatedVideo;
-      link.download = `idea2sale-video-${Date.now()}.mp4`;
+      link.download = `marketing-engine-video-${Date.now()}.mp4`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } else if (activeTool === 'voice' && generatedAudio) {
       const link = document.createElement('a');
       link.href = generatedAudio;
-      link.download = `idea2sale-audio-${Date.now()}.wav`;
+      link.download = `marketing-engine-audio-${Date.now()}.wav`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

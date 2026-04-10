@@ -46,7 +46,7 @@ const Copywriter: React.FC = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `idea2sale-copy-${Date.now()}.txt`;
+      link.download = `marketing-engine-copy-${Date.now()}.txt`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

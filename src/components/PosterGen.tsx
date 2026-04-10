@@ -108,7 +108,7 @@ const PosterGen: React.FC = () => {
     if (generatedImage) {
       const link = document.createElement('a');
       link.href = generatedImage;
-      link.download = `idea2sale-image-${Date.now()}.png`;
+      link.download = `marketing-engine-image-${Date.now()}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

@@ -45,7 +45,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
       >
         <div className="text-center mb-10">
           <p className="text-slate-400 mt-2 text-lg font-medium">
-            {isLogin ? 'Sign in to continue to Idea2Sale' : 'Join Idea2Sale and grow your business'}
+            {isLogin ? 'Sign in to continue to Marketing Engine' : 'Join Marketing Engine and grow your business'}
           </p>
         </div>
 
@@ -105,7 +105,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         </div>
 
         <p className="text-center text-slate-400 text-[10px] mt-10 leading-relaxed font-medium uppercase tracking-widest">
-          By continuing, you agree to Idea2Sale's <br />
+          By continuing, you agree to Marketing Engine's <br />
           <span className="text-brand-600 font-bold cursor-pointer">Terms of Service</span> and <span className="text-brand-600 font-bold cursor-pointer">Privacy Policy</span>.
         </p>
       </motion.div>
