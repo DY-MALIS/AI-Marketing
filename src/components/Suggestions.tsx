@@ -11,7 +11,7 @@ interface SuggestionsProps {
 }
 
 const Suggestions: React.FC<SuggestionsProps> = ({ activityVersion }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [suggestions, setSuggestions] = useState<PostingSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [addingPost, setAddingPost] = useState<string | null>(null);
@@ -24,7 +24,7 @@ const Suggestions: React.FC<SuggestionsProps> = ({ activityVersion }) => {
       const activityData = snapshot.docs.map(doc => doc.data() as ActivityData);
 
       if (activityData.length > 0) {
-        const results = await geminiService.suggestBestPostingTimes(activityData);
+        const results = await geminiService.suggestBestPostingTimes(activityData, language);
         setSuggestions(results);
       }
     } catch (err) {
@@ -41,7 +41,7 @@ const Suggestions: React.FC<SuggestionsProps> = ({ activityVersion }) => {
       }
     });
     return () => unsub();
-  }, [activityVersion]);
+  }, [activityVersion, language]);
 
   const handleApplySuggestion = async (suggestion: PostingSuggestion) => {
     if (!auth.currentUser) return;
@@ -62,7 +62,7 @@ const Suggestions: React.FC<SuggestionsProps> = ({ activityVersion }) => {
       scheduledDate.setHours(suggestion.hour, 0, 0, 0);
 
       // Generate AI Content Draft
-      const aiContentDraft = await geminiService.generateContentDraft("TIKTOK", suggestion.reason);
+      const aiContentDraft = await geminiService.generateContentDraft("TIKTOK", suggestion.reason, language);
 
       await addDoc(collection(db, 'scheduled_posts'), {
         content: aiContentDraft,

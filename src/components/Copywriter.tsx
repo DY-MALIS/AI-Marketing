@@ -14,35 +14,38 @@ import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Copywriter: React.FC = () => {
-  const { t } = useLanguage();
-  const [copyPrompt, setCopyPrompt] = useState(() => localStorage.getItem('copy_prompt') || '');
-  const [contentType, setContentType] = useState<'caption' | 'salepage' | 'script' | 'seo'>(
-    (localStorage.getItem('copy_content_type') as any) || 'caption'
-  );
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<string | null>(() => localStorage.getItem('copy_result'));
-  const [needsApiKey, setNeedsApiKey] = useState(false);
-
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
-
-  const handleGenerateCopy = async () => {
-    if (!copyPrompt) return;
-    setLoading(true);
-    setResult(null);
-    try {
-      const promptMap = {
-        caption: `Create a compelling social media caption based on: ${copyPrompt}. Provide outputs in Khmer and English. Use emojis and trending hashtags.`,
-        salepage: `Write a high-converting long-form Sale Page copy for: ${copyPrompt}. Use the AIDA framework (Attention, Interest, Desire, Action). Support Khmer and English.`,
-        script: `Create an engaging 60-second TikTok/Reels video script for: ${copyPrompt}. Include visual scene descriptions and spoken dialogue in Khmer/English.`,
-        seo: `Generate a list of 20 high-ranking SEO keywords and a meta-description for: ${copyPrompt}. Target Google and social media search algorithms.`
-      };
-
-      const prompt = `You are an expert marketing copywriter. 
-      ${promptMap[contentType]}
-      
-      CRITICAL INSTRUCTION: Detect the language of the prompt.
-      - If prompt is in Khmer, prioritize high-quality Khmer copy but still include English version for comparison.
-      - If prompt is in English, provide high-quality English copy but still include Khmer version for global reach.`;
+    const { t, language } = useLanguage();
+    const [copyPrompt, setCopyPrompt] = useState(() => localStorage.getItem('copy_prompt') || '');
+    const [contentType, setContentType] = useState<'caption' | 'salepage' | 'script' | 'seo'>(
+      (localStorage.getItem('copy_content_type') as any) || 'caption'
+    );
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState<string | null>(() => localStorage.getItem('copy_result'));
+    const [needsApiKey, setNeedsApiKey] = useState(false);
+  
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+  
+    const handleGenerateCopy = async () => {
+      if (!copyPrompt) return;
+      setLoading(true);
+      setResult(null);
+      try {
+        const promptMap = {
+          caption: `Create a compelling social media caption based on: ${copyPrompt}. Provide outputs in Khmer and English. Use emojis and trending hashtags.`,
+          salepage: `Write a high-converting long-form Sale Page copy for: ${copyPrompt}. Use the AIDA framework (Attention, Interest, Desire, Action). Support Khmer and English.`,
+          script: `Create an engaging 60-second TikTok/Reels video script for: ${copyPrompt}. Include visual scene descriptions and spoken dialogue in Khmer/English.`,
+          seo: `Generate a list of 20 high-ranking SEO keywords and a meta-description for: ${copyPrompt}. Target Google and social media search algorithms.`
+        };
+  
+        const prompt = `You are an expert marketing copywriter. 
+        ${promptMap[contentType]}
+        
+        CRITICAL INSTRUCTION: 
+        - The current application language is set to: ${language === 'km' ? 'Khmer' : 'English'}.
+        - Detect the language of the prompt: "${copyPrompt}".
+        - If either the prompt is in Khmer OR the application language is Khmer, you MUST prioritize high-quality Khmer copy and ensure the core response is available in Khmer.
+        - If the application language is Khmer, provide the response ENTIRELY or PRIMARILY in Khmer.
+        - Always include both English and Khmer versions if it helps the user's global reach, but lead with the application language.`;
 
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",

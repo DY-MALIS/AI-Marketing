@@ -43,9 +43,11 @@ const AdsManager: React.FC = () => {
       const prompt = `You are a high-level digital ads strategist. 
       The user wants to run ads for: "${targetQuery}".
       
-      CRITICAL INSTRUCTION: Detect the language of the user's input.
-      - If the user wrote in Khmer, you MUST response entirely in Khmer.
-      - If the user wrote in English, you MUST response entirely in English.
+      CRITICAL INSTRUCTION: 
+      - The current application language is set to: ${language === 'km' ? 'Khmer' : 'English'}.
+      - Detect the language of the user's input: "${targetQuery}".
+      - If either the input is in Khmer OR the application language is Khmer, you MUST provide the strategy ENTIRELY in Khmer.
+      - Otherwise, provide it in English.
       
       Structure the response as:
       ### 1. 🎯 Winning Audience Persona (Age, Interests, Behaviors)

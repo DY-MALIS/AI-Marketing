@@ -13,31 +13,33 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const ProductResearch: React.FC = () => {
-  const { t } = useLanguage();
-  const [queryInput, setQueryInput] = useState(() => localStorage.getItem('research_query') || '');
-  const [isSearching, setIsSearching] = useState(false);
-  const [analysis, setAnalysis] = useState<string | null>(() => localStorage.getItem('research_analysis'));
-
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
-
-  const handleSearch = async () => {
-    if (!queryInput) return;
-    setIsSearching(true);
-    setAnalysis(null);
-    try {
-      const prompt = `You are an expert e-commerce product researcher. Analyze the following product or niche: "${queryInput}". 
-      Provide a comprehensive research report including:
-      1. Market Demand (Current trend status).
-      2. Competitor Analysis (Major players and their strategy).
-      3. Pricing Strategy (Recommended price point).
-      4. Target Audience (Demographics and behavior).
-      5. Winning Creative Angles (What kind of videos/ads would work).
-      
-      CRITICAL INSTRUCTION: Detect the language of the input.
-      - If input is in Khmer, provide the entire research report in Khmer.
-      - If input is in English, provide the entire research report in English.
-      
-      Output in a structured, professional format with emojis.`;
+    const { t, language } = useLanguage();
+    const [queryInput, setQueryInput] = useState(() => localStorage.getItem('research_query') || '');
+    const [isSearching, setIsSearching] = useState(false);
+    const [analysis, setAnalysis] = useState<string | null>(() => localStorage.getItem('research_analysis'));
+  
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+  
+    const handleSearch = async () => {
+      if (!queryInput) return;
+      setIsSearching(true);
+      setAnalysis(null);
+      try {
+        const prompt = `You are an expert e-commerce product researcher. Analyze the following product or niche: "${queryInput}". 
+        Provide a comprehensive research report including:
+        1. Market Demand (Current trend status).
+        2. Competitor Analysis (Major players and their strategy).
+        3. Pricing Strategy (Recommended price point).
+        4. Target Audience (Demographics and behavior).
+        5. Winning Creative Angles (What kind of videos/ads would work).
+        
+        CRITICAL INSTRUCTION: 
+        - The current application language is set to: ${language === 'km' ? 'Khmer' : 'English'}.
+        - Detect the language of the input: "${queryInput}".
+        - If either the input is in Khmer OR the application language is Khmer, you MUST provide the entire research report in Khmer.
+        - Otherwise, provide it in English.
+        
+        Output in a structured, professional format with emojis.`;
 
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",

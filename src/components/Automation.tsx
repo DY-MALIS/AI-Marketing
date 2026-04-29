@@ -147,6 +147,7 @@ const Automation: React.FC = () => {
     };
   }, [user, isDemoMode]);
 
+  const [stats, setStats] = useState({ replies: 0, hours: 0, rate: 0 });
   const [tiktokConnected, setTiktokConnected] = useState(() => {
     return localStorage.getItem('tiktok_connected') === 'true';
   });
@@ -294,11 +295,20 @@ const Automation: React.FC = () => {
   };
 
   const deleteCampaign = async (id: string) => {
-    if (!confirm(t('deleteConfirm'))) return;
     try {
+      if (isDemoMode) {
+        setCampaigns(prev => prev.filter(c => c.id !== id));
+        return;
+      }
       await deleteDoc(doc(db, 'campaigns', id));
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error deleting campaign:', err);
+      const msg = err.message || '';
+      if (msg.includes('insufficient permissions')) {
+        setErrorMsg(language === 'km' ? 'អ្នកមិនមានការអនុញ្ញាតឱ្យលុបទិន្នន័យនេះទេ។' : 'You do not have permission to delete this.');
+      } else {
+        setErrorMsg(language === 'km' ? 'មិនអាចលុបបាន៖ ' + msg : 'Failed to delete: ' + msg);
+      }
     }
   };
 
@@ -351,11 +361,20 @@ const Automation: React.FC = () => {
   };
 
   const deleteRule = async (id: string) => {
-    if (!confirm(t('deleteConfirm'))) return;
     try {
+      if (isDemoMode) {
+        setReplyRules(prev => prev.filter(r => r.id !== id));
+        return;
+      }
       await deleteDoc(doc(db, 'reply_rules', id));
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error deleting rule:', err);
+      const msg = err.message || '';
+      if (msg.includes('insufficient permissions')) {
+        setErrorMsg(language === 'km' ? 'អ្នកមិនមានការអនុញ្ញាតឱ្យលុបទិន្នន័យនេះទេ។' : 'You do not have permission to delete this.');
+      } else {
+        setErrorMsg(language === 'km' ? 'មិនអាចលុបបាន៖ ' + msg : 'Failed to delete: ' + msg);
+      }
     }
   };
 
@@ -402,6 +421,23 @@ const Automation: React.FC = () => {
           </button>
         </div>
       </header>
+
+      {errorMsg && !isScheduleModalOpen && !isRuleModalOpen && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center gap-3 shadow-sm"
+        >
+          <AlertCircle size={20} className="shrink-0" />
+          <p className="text-sm font-medium">{errorMsg}</p>
+          <button 
+            onClick={() => setErrorMsg(null)}
+            className="ml-auto p-1 hover:bg-red-100 rounded-lg transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-8">
@@ -450,28 +486,28 @@ const Automation: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <button 
-                          onClick={() => toggleCampaignStatus(campaign)}
-                          className={cn(
-                            "flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full transition-all",
-                            campaign.status === 'Active' 
-                              ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100" 
-                              : "text-slate-500 bg-slate-100 hover:bg-slate-200"
-                          )}
-                        >
-                          {campaign.status === 'Active' ? <CheckCircle2 size={14} /> : <Clock size={14} />}
-                          {campaign.status === 'Active' ? t('enabled') : t('paused')}
-                        </button>
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                        <div className="flex items-center gap-4">
                           <button 
-                            onClick={() => deleteCampaign(campaign.id)}
-                            className="p-3 bg-white hover:bg-red-50 text-red-400 rounded-xl transition-all border border-brand-100"
+                            onClick={() => toggleCampaignStatus(campaign)}
+                            className={cn(
+                              "flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full transition-all",
+                              campaign.status === 'Active' 
+                                ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100" 
+                                : "text-slate-500 bg-slate-100 hover:bg-slate-200"
+                            )}
                           >
-                            <X size={18} />
+                            {campaign.status === 'Active' ? <CheckCircle2 size={14} /> : <Clock size={14} />}
+                            {campaign.status === 'Active' ? t('enabled') : t('paused')}
                           </button>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => deleteCampaign(campaign.id)}
+                              className="p-3 bg-white hover:bg-red-50 text-red-400 rounded-xl transition-all border border-brand-100 shadow-sm"
+                            >
+                              <X size={18} />
+                            </button>
+                          </div>
                         </div>
-                      </div>
                     </div>
                   ))
                 )}
@@ -514,7 +550,7 @@ const Automation: React.FC = () => {
                           <span className="text-xs text-slate-400 font-bold">{rule.platform}</span>
                           <button 
                             onClick={() => deleteRule(rule.id)}
-                            className="p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white hover:bg-red-50 text-red-400 rounded-lg border border-brand-100"
+                            className="p-2 bg-white hover:bg-red-50 text-red-400 rounded-lg border border-brand-100 shadow-sm"
                           >
                             <X size={14} />
                           </button>

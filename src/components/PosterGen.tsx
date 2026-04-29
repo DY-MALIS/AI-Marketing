@@ -14,7 +14,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 type ToolType = 'poster' | 'visual';
 
 const PosterGen: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeTool, setActiveTool] = useState<ToolType>('poster');
   const [posterPrompt, setPosterPrompt] = useState('');
   const [visualPrompt, setVisualPrompt] = useState('');
@@ -105,7 +105,10 @@ const PosterGen: React.FC = () => {
       Visual description: ${posterPrompt}. 
       The poster should have clear, readable text for the brand and headline.
       
-      Note: If the brand/headline/visual description is in Khmer, ensure the visual style reflects a Cambodian/Khmer aesthetic. If in English, use a more global professional style.`;
+      CRITICAL INSTRUCTION:
+      - The current UI language is: ${language === 'km' ? 'Khmer' : 'English'}.
+      - If the UI language is Khmer, ensure the visual style reflects a Cambodian/Khmer aesthetic and any text on the poster is correctly rendered or inspired by Khmer culture.
+      - If the brand/headline/visual description is in Khmer, prioritize the Khmer aesthetic.`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',

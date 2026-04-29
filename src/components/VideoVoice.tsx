@@ -19,7 +19,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 type ToolType = 'video' | 'voice';
 
 const VideoVoice: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeTool, setActiveTool] = useState<ToolType>('video');
   const [videoPrompt, setVideoPrompt] = useState('');
   const [videoLanguage, setVideoLanguage] = useState<'Khmer' | 'English'>('Khmer');
@@ -33,6 +33,7 @@ const VideoVoice: React.FC = () => {
   const [needsApiKey, setNeedsApiKey] = useState(false);
   const [videoImage, setVideoImage] = useState<string | null>(null);
   const [videoImageMimeType, setVideoImageMimeType] = useState<string | null>(null);
+  const [videoUri, setVideoUri] = useState<string | null>(null);
 
   const [aiCaption, setAiCaption] = useState('');
   const [captionLanguage, setCaptionLanguage] = useState<'Khmer' | 'English'>('Khmer');
@@ -74,9 +75,11 @@ const VideoVoice: React.FC = () => {
         model: "gemini-3-flash-preview",
         contents: `You are a social media expert. Create a catchy TikTok caption and trending hashtags based on the described scene. 
         
-        CRITICAL INSTRUCTION: Detect the language of the 'scene description'.
-        - If input is in Khmer, you MUST respond entirely in Khmer.
-        - If input is in English, you MUST respond entirely in English.
+        CRITICAL INSTRUCTION: 
+        - The current application language is set to: ${language === 'km' ? 'Khmer' : 'English'}.
+        - Detect the language of the 'scene description': "${videoPrompt}".
+        - If either the input is in Khmer OR the application language is Khmer, you MUST respond entirely in Khmer.
+        - Otherwise, provide it entirely in English.
         
         Scene description: ${videoPrompt}`,
       });
@@ -225,6 +228,7 @@ const VideoVoice: React.FC = () => {
       }
       const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
       if (downloadLink) {
+        setVideoUri(downloadLink);
         const response = await fetch(downloadLink, {
           method: 'GET',
           headers: { 'x-goog-api-key': process.env.API_KEY || process.env.GEMINI_API_KEY || '' },
@@ -468,18 +472,33 @@ const VideoVoice: React.FC = () => {
                 <div className="w-full space-y-6">
                   <video src={generatedVideo} controls className="w-full rounded-3xl shadow-2xl" />
                   <div className="flex gap-4">
-                    <button 
-                      onClick={() => handlePostToTikTok(generatedVideo!)}
-                      disabled={isPostingTikTok}
-                      className="flex-1 bg-black text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl hover:bg-slate-900 transition-all disabled:opacity-50"
-                    >
-                      {isPostingTikTok ? <Loader2 size={20} className="animate-spin" /> : (
-                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.06 3.42-.01 6.83-.02 10.25-.17 4.14-4.23 7.25-8.26 6.5-3.94-.73-6.47-5.11-4.67-8.73 1.14-2.2 3.86-3.54 6.32-3.14.05 1.58 0 3.16 0 4.74-1.57-.14-3.29.35-4.23 1.71-.96 1.39-.64 3.55.75 4.53 1.38.97 3.56.64 4.53-.75.28-.38.39-.84.41-1.3.02-3.58 0-7.17.01-10.75 0-2.87 0-5.74 0-8.61z"/>
-                        </svg>
-                      )}
-                      {t('postToTiktok')} (@ai.cafe4)
-                    </button>
+                    {tiktokUser ? (
+                      <button 
+                        onClick={() => handlePostToTikTok(videoUri || generatedVideo!)}
+                        disabled={isPostingTikTok}
+                        className="flex-1 bg-black text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl hover:bg-slate-900 transition-all disabled:opacity-50"
+                      >
+                        {isPostingTikTok ? <Loader2 size={20} className="animate-spin" /> : (
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.06 3.42-.01 6.83-.02 10.25-.17 4.14-4.23 7.25-8.26 6.5-3.94-.73-6.47-5.11-4.67-8.73 1.14-2.2 3.86-3.54 6.32-3.14.05 1.58 0 3.16 0 4.74-1.57-.14-3.29.35-4.23 1.71-.96 1.39-.64 3.55.75 4.53 1.38.97 3.56.64 4.53-.75.28-.38.39-.84.41-1.3.02-3.58 0-7.17.01-10.75 0-2.87 0-5.74 0-8.61z"/>
+                          </svg>
+                        )}
+                        {t('postToTiktok')} {tiktokUser ? `(@${tiktokUser.display_name})` : ''}
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={handleTikTokAuth}
+                        disabled={isAuthenticating}
+                        className="flex-1 bg-brand-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl hover:bg-brand-700 transition-all disabled:opacity-50"
+                      >
+                        {isAuthenticating ? <Loader2 size={20} className="animate-spin" /> : (
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.06 3.42-.01 6.83-.02 10.25-.17 4.14-4.23 7.25-8.26 6.5-3.94-.73-6.47-5.11-4.67-8.73 1.14-2.2 3.86-3.54 6.32-3.14.05 1.58 0 3.16 0 4.74-1.57-.14-3.29.35-4.23 1.71-.96 1.39-.64 3.55.75 4.53 1.38.97 3.56.64 4.53-.75.28-.38.39-.84.41-1.3.02-3.58 0-7.17.01-10.75 0-2.87 0-5.74 0-8.61z"/>
+                          </svg>
+                        )}
+                        {t('connectTiktok')}
+                      </button>
+                    )}
                     <button 
                       onClick={() => setActiveTool('planner' as any)} // Placeholder for coordination
                       className="p-4 bg-brand-100 text-brand-700 rounded-2xl hover:bg-brand-200 transition-all border border-brand-200"

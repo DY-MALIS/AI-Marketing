@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Calendar, Clock, Trash2, CheckCircle2, AlertCircle, Share2, Instagram, Twitter } from 'lucide-react';
+import { Calendar, Clock, Trash2, CheckCircle2, AlertCircle, Share2, Instagram, Twitter, X } from 'lucide-react';
 import { db, auth } from '../lib/firebase';
 import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { SchedulePost } from '../types';
@@ -9,10 +9,11 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 
 const Scheduler: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, isDemoMode } = useAuth();
   const [posts, setPosts] = useState<SchedulePost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     let unsubscribe: () => void;
@@ -83,20 +84,32 @@ const Scheduler: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
+      if (isDemoMode) {
+        setPosts(prev => prev.filter(p => p.id !== id));
+        return;
+      }
       await deleteDoc(doc(db, 'scheduled_posts', id));
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('Error deleting post:', err);
+      const msg = err.message || '';
+      setErrorMsg(language === 'km' ? 'មិនអាចលុបបាន៖ ' + msg : 'Failed to delete: ' + msg);
     }
   };
 
   const toggleStatus = async (post: SchedulePost) => {
     const newStatus = post.status === 'PENDING' ? 'PUBLISHED' : 'PENDING';
     try {
+      if (isDemoMode) {
+        setPosts(prev => prev.map(p => p.id === post.id ? { ...p, status: newStatus } : p));
+        return;
+      }
       await updateDoc(doc(db, 'scheduled_posts', post.id), {
         status: newStatus
       });
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('Error updating status:', err);
+      const msg = err.message || '';
+      setErrorMsg(language === 'km' ? 'មិនអាចផ្លាស់ប្តូរស្ថានភាពបាន៖ ' + msg : 'Failed to update status: ' + msg);
     }
   };
 
@@ -123,6 +136,15 @@ const Scheduler: React.FC = () => {
       </div>
 
       <div className="p-0">
+        {errorMsg && (
+          <div className="m-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
+            <AlertCircle className="text-red-500 shrink-0" size={20} />
+            <p className="text-sm text-red-500 font-medium">{errorMsg}</p>
+            <button onClick={() => setErrorMsg(null)} className="ml-auto text-red-500/50 hover:text-red-500">
+              <X size={16} />
+            </button>
+          </div>
+        )}
         {posts.length === 0 ? (
           <div className="py-20 text-center px-10">
             <div className="w-16 h-16 bg-[#1A1B1E] rounded-full flex items-center justify-center mx-auto mb-4 border border-[#2A2B2F]">
@@ -176,7 +198,7 @@ const Scheduler: React.FC = () => {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2 transition-opacity">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}

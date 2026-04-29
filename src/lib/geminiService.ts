@@ -16,7 +16,7 @@ export interface PostingSuggestion {
 }
 
 export const geminiService = {
-  suggestBestPostingTimes: async (activityLogs: ActivityData[]): Promise<PostingSuggestion[]> => {
+  suggestBestPostingTimes: async (activityLogs: ActivityData[], language: string = 'en'): Promise<PostingSuggestion[]> => {
     const prompt = `
       Analyze the following audience activity logs and suggest the 5 best posting times (day and hour).
       Activity Logs:
@@ -24,7 +24,9 @@ export const geminiService = {
       
       Look for patterns of high intensity. Consider both peak times and "low-competition" high-growth times.
       
-      CRITICAL INSTRUCTION: Analyze the data. If the user context (e.g. Activity Logs) or previous interactions were in Khmer, provide the "reason" field in Khmer. If in English, provide it in English. If ambiguous, prioritize Khmer for local audience.
+      CRITICAL INSTRUCTION: 
+      - The current UI language is: ${language === 'km' ? 'Khmer' : 'English'}.
+      - Provide the "reason" field ENTIRELY in ${language === 'km' ? 'Khmer' : 'English'}.
       
       Return the results as an array of objects with dayOfWeek, hour, reason (concise explanation), and score (0-1).
     `;
@@ -99,14 +101,16 @@ export const geminiService = {
     }
   },
 
-  generateContentDraft: async (platform: string, reason: string): Promise<string> => {
+  generateContentDraft: async (platform: string, reason: string, language: string = 'en'): Promise<string> => {
     const prompt = `
       Generate a short, viral-ready social media post for ${platform}.
       The context/reason for posting at this time is: "${reason}".
       
-      CRITICAL INSTRUCTION: Detect the language of the 'reason'.
-      - If 'reason' is in Khmer, respond ENTIRELY in Khmer.
-      - If 'reason' is in English, respond ENTIRELY in English.
+      CRITICAL INSTRUCTION: 
+      - The current UI language is: ${language === 'km' ? 'Khmer' : 'English'}.
+      - Detect the language of the 'reason': "${reason}".
+      - If either the 'reason' is in Khmer OR the UI language is Khmer, you MUST respond ENTIRELY in Khmer.
+      - Otherwise, respond in English.
       
       Write ONLY the content of the post. Include relevant hashtags. 
       Keep it engaging and professional yet trendy.

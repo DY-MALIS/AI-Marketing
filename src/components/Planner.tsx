@@ -34,11 +34,13 @@ import {
   serverTimestamp,
   getDocs
 } from 'firebase/firestore';
-import { db } from './TikTokAnalytics'; // Reusing established db connection from TikTokAnalytics or centralize later
+import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Planner: React.FC = () => {
   const { user, isDemoMode } = useAuth();
+  const { t, language } = useLanguage();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, post?: any, type: 'post' | 'general' } | null>(null);
   const [showFullList, setShowFullList] = useState(false);
@@ -238,7 +240,11 @@ const Planner: React.FC = () => {
         contents: `Generate a high-converting social media content strategy for the month of ${format(currentDate, 'MMMM yyyy')}. 
         Create 8 diverse posts including educational content, product features, and engagement-driven posts.
         Ensure dates are spread across the month.
-        Language Detection: If the current month or context hints at Khmer, use Khmer for titles. Otherwise, English is fine. (Note: Current language setting is ${localStorage.getItem('language') || 'km'}).`,
+        
+        CRITICAL INSTRUCTION: 
+        - The current application language is set to: ${language === 'km' ? 'Khmer' : 'English'}.
+        - If the application language is Khmer, you MUST provide all titles and content descriptions ENTIRELY in Khmer.
+        - Otherwise, provide them in English.`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {

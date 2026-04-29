@@ -469,8 +469,8 @@ async function startServer() {
     if (!token) return res.status(401).json({ error: "Not authenticated with TikTok" });
 
     try {
-      const host = req.get('host');
-      const protocol = host?.includes('localhost') ? 'http' : 'https';
+      const host = req.get('x-forwarded-host') || req.get('host') || 'localhost:3000';
+      const protocol = req.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
       const proxyUrl = `${protocol}://${host}/api/proxy-video?url=${encodeURIComponent(videoUrl)}`;
       
       const initResponse = await axios.post(
